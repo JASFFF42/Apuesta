@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Juego de Marcadores</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f9;
+            text-align: center;
+            padding: 50px;
+        }
+        h1 { color: #333; }
+        .scoreboard { margin-top: 30px; font-size: 20px; }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        input {
+            padding: 8px;
+            font-size: 16px;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Juego de Marcadores</h1>
+    <p>Un tercero elige al ganador escribiendo el nombre.</p>
+
+    <div id="jugadores"></div>
+    <input type="text" id="ganadorInput" placeholder="Escribe el nombre del ganador">
+    <button onclick="registrarGanador()">Registrar Ganador</button>
+    <button onclick="resetMarcador()">Reiniciar Marcador</button>
+
+    <div class="scoreboard" id="marcador"></div>
+
+    <script>
+        // Lista de nombres (puedes cambiarla tú)
+        const nombres = ["Ana", "Luis", "Carlos", "María", "Sofía", "Pedro", "Elena", "Jorge"];
+
+        // Cargar marcador desde localStorage o inicializar
+        let marcador = JSON.parse(localStorage.getItem("marcador")) || {};
+        nombres.forEach(nombre => {
+            if (!(nombre in marcador)) {
+                marcador[nombre] = 0;
+            }
+        });
+
+        // Mostrar marcador
+        function mostrarMarcador() {
+            let html = "<h2>Marcador</h2>";
+            for (const [nombre, puntos] of Object.entries(marcador)) {
+                html += `<p>${nombre}: ${puntos} puntos</p>`;
+            }
+            document.getElementById("marcador").innerHTML = html;
+        }
+
+        // Mostrar dos jugadores al azar
+        function mostrarJugadores() {
+            let [n1, n2] = nombres.sort(() => 0.5 - Math.random()).slice(0, 2);
+            document.getElementById("jugadores").innerHTML = 
+                `<p>Jugador A: ${n1}</p><p>Jugador B: ${n2}</p>`;
+        }
+
+        // Registrar ganador elegido por un tercero
+        function registrarGanador() {
+            let ganador = document.getElementById("ganadorInput").value.trim();
+            if (ganador && marcador.hasOwnProperty(ganador)) {
+                marcador[ganador] += 1;
+                localStorage.setItem("marcador", JSON.stringify(marcador));
+                alert(`¡Se registró la victoria de ${ganador}!`);
+                mostrarMarcador();
+                mostrarJugadores(); // mostrar nuevos jugadores para la siguiente ronda
+                document.getElementById("ganadorInput").value = "";
+            } else {
+                alert("Nombre inválido. Escribe exactamente uno de los nombres mostrados.");
+            }
+        }
+
+        // Reiniciar marcador
+        function resetMarcador() {
+            if (confirm("¿Seguro que quieres reiniciar el marcador?")) {
+                marcador = {};
+                nombres.forEach(nombre => marcador[nombre] = 0);
+                localStorage.setItem("marcador", JSON.stringify(marcador));
+                mostrarMarcador();
+                mostrarJugadores();
+            }
+        }
+
+        // Inicializar
+        mostrarMarcador();
+        mostrarJugadores();
+    </script>
+</body>
+</html>
